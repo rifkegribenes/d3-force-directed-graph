@@ -1,0 +1,75 @@
+/* style.css */
+
+body {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: middle;
+	font-family: 'Titillium Web', sans-serif;
+}
+
+.chart {
+	margin: auto;
+}
+
+.bar:hover {
+	fill: LightBlue !important;
+}
+
+.header, .subhead {
+	text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.header {
+  margin: 10px 0 0 0;
+}
+
+.middle, .center {
+  text-align: center;
+}
+
+.details {
+  margin-bottom: 10px;
+}
+
+.d3-tip {
+  line-height: 1;
+  color: #fff;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 2px;
+}
+
+.tip-name{
+	font-weight: 700;
+	text-align: center;
+	margin-bottom: 3px;
+}
+
+.tip-gdp{
+	font-weight: 100;
+	text-align: center;
+}
+
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+.legend {
+  font-size: 12px;
+}
