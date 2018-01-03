@@ -1,15 +1,18 @@
 const dataUrl = 'https://raw.githubusercontent.com/DealPete/forceDirected/master/countries.json';
 
+let simulation;
+
 const init = () => {
 
   // define constants
   const animationStep = 200;
   const nodeRadius = 3;
-  const forceCharge = -50;
-  const linkDistance = 20;
+  const forceCharge = -10;
+  const linkDistance = 10;
   const { nodes, links } = data;
   let w = window.innerWidth;
   let h = window.innerHeight;
+  const r = 5;
   const margin = {
     left: 20,
     right: 20,
@@ -36,9 +39,9 @@ const init = () => {
   svg.call(tip);
 
   // initialize simulation
-  const simulation = d3.forceSimulation()
+  simulation = d3.forceSimulation()
     .force("link", d3.forceLink())
-    .force("charge", d3.forceManyBody())
+    .force('charge', d3.forceManyBody().strength(-20))
     .force("center", d3.forceCenter(w / 2, h / 2));
 
   // initialize links
@@ -70,6 +73,8 @@ const init = () => {
     .enter().append("circle")
       .attr("r", 5)
       .attr("fill", "blue")
+      .on("mouseover", tip.show)
+      .on("mouseout", tip.hide)
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
@@ -86,8 +91,8 @@ const init = () => {
     node
       // .style('left', d => `${(d.x - 8)}px`)
       // .style('top', d => `${(d.y - 5)}px`);
-      .attr("cx", (d) => d.x)
-      .attr("cy", (d) => d.y);
+      .attr("cx", (d) => d.x = Math.max(r, Math.min(w - margin.left - margin.right - r, d.x)))
+      .attr("cy", (d) => d.y = Math.max(r, Math.min(h - margin.top - margin.bottom - r, d.y)));
   }
 
   simulation
