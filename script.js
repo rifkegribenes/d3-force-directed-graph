@@ -1,101 +1,106 @@
 const dataUrl = 'https://raw.githubusercontent.com/DealPete/forceDirected/master/countries.json';
 
-let svg, data, x = 0, y = 0, xAxis, yAxis, dim, chartWrapper, cellHeight = 0, cellWidth = 0, uniqueYears, margin = { top: 70, right: 30, left: 70, bottom: 70 }, w = 1200, h = .4 * w, minYear, colorScale, baseTemp, xLabel, yLabel, xAxisG, legend;
+const init = () => {
 
-const updateDimensions = (winWidth, winHeight) => {
-  w = winWidth - margin.left - margin.right;
-  h = winHeight - margin.top - margin.bottom;
+  // define constants
+  const animationStep = 200;
+  const nodeRadius = 3;
+  const forceCharge = -50;
+  const linkDistance = 20;
+  const { nodes, links } = data;
+  let w = window.innerWidth;
+  let h = window.innerHeight;
+  const margin = {
+    left: 20,
+    right: 20,
+    top: 20,
+    bottom: 20,
+  };
 
-  d3.selectAll('.d3-tip')
-    .style("opacity", 0);
-}
-
-const render = (dataset) => {
-  // update dimensions based on window size
-  updateDimensions(window.innerWidth, window.innerHeight);
-
-  // update svg dimensions
-  svg
-    .attr('width', w + margin.right + margin.left)
-    .attr('height', h + margin.top + margin.bottom)
+  //initialize svg
+  const svg = d3.select("body")
+    .append("svg")
+    .attr('width', w - margin.right - margin.left)
+    .attr('height', h - margin.top - margin.bottom)
+    .attr("class", "graph")
+    .attr("id", "graph");
 
   // initialize tooltips
   const tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([-10, 0])
     .html((d) => {
-      return `<div class='tip-name'>${months[d.month - 1]} ${d.year}</div><div class='tip-gdp'>${(Math.floor((d.variance + baseTemp) * 1000) / 1000)}°</div>`;
+      return `<div class='tip-name'>${d.country}</div>`;
     });
 
   svg.call(tip);
 
-  // update cell size
-  svg.selectAll('.bar')
-      .attr("x", (d) => ((d.year - minYear) * cellWidth) + margin.left)
-      .attr("y", (d) => ((d.month - 1) * cellHeight) + margin.top)
-      .attr("rx", 0)
-      .attr("ry", 0)
-      .attr("width", cellWidth)
-      .attr("height", cellHeight)
-      .on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
+  // initialize simulation
+  const simulation = d3.forceSimulation()
+    .force("link", d3.forceLink())
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(w / 2, h / 2));
+
+  // initialize links
+  const link = svg.append("g")
+    .attr("class", "link")
+    .selectAll("line")
+    .data(links)
+    .enter()
+    .append("line");
+
+  // initialize nodes
+  const node = svg.selectAll('node')
+    .data(nodes)
+    .enter()
+    .append('img')
+    .attr('class', d => `flag flag-${d.code}`)
+    .on("mouseover", tip.show)
+    .on("mouseout", tip.hide)
+    .call(d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended)
+      );
+
+   // define tick function
+  const ticked = () => {
+    link
+        .attr("x1", (d) => d.source.x)
+        .attr("y1", (d) => d.source.y)
+        .attr("x2", (d) => d.target.x)
+        .attr("y2", (d) => d.target.y);
+
+    node
+      .style('left', d => `${(d.x - 8)}px`)
+      .style('top', d => `${(d.y - 5)}px`);
+  }
+
+  simulation
+      .nodes(nodes)
+      .on("tick", ticked);
+
+  simulation.force("link")
+      .links(links);
 
 }
 
-window.addEventListener('resize', render);
+const dragstarted = (d) => {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
 
-const init = () => {
+const dragged = (d) => {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
 
-  // define constants
-  baseTemp = data.baseTemperature;
-  const { nodes, links } = data;
-
-  // initialize scales
-  x = d3.scaleTime().domain([minDate, maxDate])
-
-  colorScale = d3.scaleQuantile()
-    .domain([minVariance + baseTemp, maxVariance + baseTemp])
-    .range(colors);
-
-  //initialize svg
-  svg = d3.select("body")
-    .append("svg")
-    .attr('width', w + margin.right + margin.left)
-    .attr('height', h + margin.top + margin.bottom)
-    .attr("class", "graph")
-    .attr("id", "graph");
-
-  // add temp data cells
-  const temps = svg.selectAll(".years")
-      .data(dataset, (d) => `${d.year}:${d.month}`);
-
-  temps.enter()
-      .append("rect")
-      .attr("x", (d) => ((d.year - minYear) * cellWidth) + margin.left)
-      .attr("y", (d) => ((d.month - 1) * cellHeight) + margin.top)
-      .attr("rx", 0)
-      .attr("ry", 0)
-      .attr("width", cellWidth)
-      .attr("height", cellHeight)
-      .attr("class", "bar")
-      .style("fill", (d) => colorScale(d.variance + baseTemp));
-
-  // add month labels to y axis
-  svg.selectAll(".yLabel")
-     .data(months)
-     .enter()
-     .append("text")
-     .text((d) => d)
-     .attr("x", 0)
-     .attr("y", (d, i) => (i * cellHeight) + (margin.top))
-     .style("text-anchor", "end")
-     .attr("transform", `translate(${margin.left - 6}, ${cellHeight / 1.5})`)
-     .attr("class", "yLabel");
-
-   // render
-   render(dataset);
-
- }
+const dragended = (d) => {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
 
 const request = new XMLHttpRequest();
 request.open('GET', dataUrl, true);
