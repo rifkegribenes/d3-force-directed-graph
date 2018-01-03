@@ -79,6 +79,17 @@ body {
   stroke: #252525;
 }
 
+.link line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.node circle {
+  stroke: #252525;
+  stroke-width: 1.5px;
+  stroke-opacity: 0.6;
+}
+
 .flag {
   position: absolute;
   width: 16px;

@@ -50,18 +50,30 @@ const init = () => {
     .append("line");
 
   // initialize nodes
-  const node = svg.selectAll('node')
+  const node = svg
+    // .selectAll('node')
+    // .data(nodes)
+    // .enter()
+    // .append('img')
+    // .attr('class', d => `flag flag-${d.code}`)
+    // .on("mouseover", tip.show)
+    // .on("mouseout", tip.hide)
+    // .call(d3.drag()
+    //   .on("start", dragstarted)
+    //   .on("drag", dragged)
+    //   .on("end", dragended)
+    //   )
+    .append("g")
+    .attr("class", "node")
+    .selectAll("circle")
     .data(nodes)
-    .enter()
-    .append('img')
-    .attr('class', d => `flag flag-${d.code}`)
-    .on("mouseover", tip.show)
-    .on("mouseout", tip.hide)
-    .call(d3.drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended)
-      );
+    .enter().append("circle")
+      .attr("r", 5)
+      .attr("fill", "blue")
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
 
    // define tick function
   const ticked = () => {
@@ -72,8 +84,10 @@ const init = () => {
         .attr("y2", (d) => d.target.y);
 
     node
-      .style('left', d => `${(d.x - 8)}px`)
-      .style('top', d => `${(d.y - 5)}px`);
+      // .style('left', d => `${(d.x - 8)}px`)
+      // .style('top', d => `${(d.y - 5)}px`);
+      .attr("cx", (d) => d.x)
+      .attr("cy", (d) => d.y);
   }
 
   simulation
