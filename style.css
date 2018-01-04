@@ -8,7 +8,7 @@ body {
 	font-family: 'Titillium Web', sans-serif;
 }
 
-.graph {
+svg {
 	position: absolute;
   padding: 20px;
   border: 1px solid #eee;
@@ -96,7 +96,11 @@ body {
   position: absolute;
   width: 16px;
   height: 11px;
-  background:url("flags.png") no-repeat
+  background: url("flags.png") no-repeat;
+}
+
+.flag__wrap {
+  position: absolute;
 }
 
 .flag.flag-ad {background-position: -16px 0}

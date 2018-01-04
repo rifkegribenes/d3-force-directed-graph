@@ -6,7 +6,7 @@ const init = () => {
 
   // define constants
   const animationStep = 200;
-  const nodeRadius = 3;
+  const nodeRadius = 5;
   const forceCharge = -10;
   const linkDistance = 10;
   const { nodes, links } = data;
@@ -18,19 +18,20 @@ const init = () => {
   } else {
     w = h;
   }
-  const r = 5;
+  const r = 10;
   const margin = {
     left: 20,
     right: 20,
     top: 20,
     bottom: 20,
   };
+  const graph = d3.select('.graph');
   console.log(`window.innerWidth: ${window.innerWidth}`);
   console.log(`w: ${w}`);
   console.log(`left of graph: ${window.innerWidth - (w / 2)}`);
 
   //initialize svg
-  const svg = d3.select("body")
+  const svg = graph
     .append("svg")
     .attr('width', w - margin.right - margin.left)
     .attr('height', h - margin.top - margin.bottom)
@@ -63,33 +64,40 @@ const init = () => {
     .enter()
     .append("line");
 
-  // initialize nodes
-  const node = svg
-    // .selectAll('node')
-    // .data(nodes)
-    // .enter()
-    // .append('img')
-    // .attr('class', d => `flag flag-${d.code}`)
-    // .on("mouseover", tip.show)
-    // .on("mouseout", tip.hide)
-    // .call(d3.drag()
-    //   .on("start", dragstarted)
-    //   .on("drag", dragged)
-    //   .on("end", dragended)
-    //   )
-    .append("g")
-    .attr("class", "node")
-    .selectAll("circle")
+  // // initialize node circles
+  // const node = svg
+  //   .append("g")
+  //   .attr("class", "node")
+  //   .selectAll("circle")
+  //   .data(nodes)
+  //   .enter().append("circle")
+  //     .attr("r", r)
+  //     .attr("fill", "white")
+  //     .on("mouseover", tip.show)
+  //     .on("mouseout", tip.hide)
+  //     .call(d3.drag()
+  //         .on("start", dragstarted)
+  //         .on("drag", dragged)
+  //         .on("end", dragended));
+
+  const flag = graph
+    .select('.flag__wrap')
+    .attr('width', w - margin.right - margin.left)
+    .attr('height', h - margin.top - margin.bottom)
+    .style('top', `${headerHeight + 1}px`)
+    .style('left', `${(window.innerWidth / 2) - (w / 2)}px`)
+    .selectAll('.flag')
     .data(nodes)
-    .enter().append("circle")
-      .attr("r", 5)
-      .attr("fill", "blue")
-      .on("mouseover", tip.show)
-      .on("mouseout", tip.hide)
-      .call(d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended));
+    .enter()
+    .append('img')
+    .attr('class', d => `flag flag-${d.code}`)
+    .on("mouseover", tip.show)
+    .on("mouseout", tip.hide)
+    .call(d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended)
+      )
 
    // define tick function
   const ticked = () => {
@@ -99,11 +107,13 @@ const init = () => {
         .attr("x2", (d) => d.target.x)
         .attr("y2", (d) => d.target.y);
 
-    node
-      // .style('left', d => `${(d.x - 8)}px`)
-      // .style('top', d => `${(d.y - 5)}px`);
-      .attr("cx", (d) => d.x = Math.max(r, Math.min(w - margin.left - margin.right - r, d.x)))
-      .attr("cy", (d) => d.y = Math.max(r, Math.min(h - margin.top - margin.bottom - r, d.y)));
+    // node
+    //   .attr("cx", (d) => d.x = Math.max(r, Math.min(w - margin.left - margin.right - r, d.x)))
+    //   .attr("cy", (d) => d.y = Math.max(r, Math.min(h - margin.top - margin.bottom - r, d.y)));
+
+    flag
+      .style('left', d => `${(d.x = Math.max(16, Math.min(w - margin.left - margin.right - 16, (d.x + 16))))}px`)
+      .style('top', d => `${(d.y = Math.max(11, Math.min(h - margin.top - margin.bottom - 11, (d.y + 11))))}px`);
   }
 
   simulation
