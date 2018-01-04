@@ -10,8 +10,14 @@ const init = () => {
   const forceCharge = -10;
   const linkDistance = 10;
   const { nodes, links } = data;
+  const headerHeight = document.getElementById('header').clientHeight;
   let w = window.innerWidth;
-  let h = window.innerHeight;
+  let h = window.innerHeight - headerHeight;
+  if (w < h) {
+    h = w;
+  } else {
+    w = h;
+  }
   const r = 5;
   const margin = {
     left: 20,
@@ -19,6 +25,9 @@ const init = () => {
     top: 20,
     bottom: 20,
   };
+  console.log(`window.innerWidth: ${window.innerWidth}`);
+  console.log(`w: ${w}`);
+  console.log(`left of graph: ${window.innerWidth - (w / 2)}`);
 
   //initialize svg
   const svg = d3.select("body")
@@ -26,7 +35,9 @@ const init = () => {
     .attr('width', w - margin.right - margin.left)
     .attr('height', h - margin.top - margin.bottom)
     .attr("class", "graph")
-    .attr("id", "graph");
+    .attr("id", "graph")
+    .style('top', `${headerHeight + 1}px`)
+    .style('left', `${(window.innerWidth / 2) - (w / 2)}px`);
 
   // initialize tooltips
   const tip = d3.tip()
@@ -41,8 +52,8 @@ const init = () => {
   // initialize simulation
   simulation = d3.forceSimulation()
     .force("link", d3.forceLink())
-    .force('charge', d3.forceManyBody().strength(-20))
-    .force("center", d3.forceCenter(w / 2, h / 2));
+    .force('charge', d3.forceManyBody().strength(-6))
+    .force("center", d3.forceCenter((w - margin.right - margin.left) / 2, (h - margin.top - margin.bottom) / 2));
 
   // initialize links
   const link = svg.append("g")

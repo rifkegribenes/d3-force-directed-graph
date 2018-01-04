@@ -8,20 +8,22 @@ body {
 	font-family: 'Titillium Web', sans-serif;
 }
 
-.chart {
-	margin: auto;
+.graph {
+	position: absolute;
+  padding: 20px;
+  border: 1px solid #eee;
 }
 
 .bar:hover {
 	fill: LightBlue !important;
 }
 
-.header, .subhead {
+.title, .subhead {
 	text-align: center;
   margin: 0 0 10px 0;
 }
 
-.header {
+.title {
   margin: 10px 0 0 0;
 }
 
