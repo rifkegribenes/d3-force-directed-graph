@@ -5,10 +5,6 @@ let simulation;
 const init = () => {
 
   // define constants
-  const animationStep = 200;
-  const nodeRadius = 5;
-  const forceCharge = -10;
-  const linkDistance = 10;
   const { nodes, links } = data;
   const headerHeight = document.getElementById('header').clientHeight;
   let w = window.innerWidth;
@@ -42,7 +38,8 @@ const init = () => {
   // initialize tooltips
   const tip = d3.select("body").append("div")
     .attr("class", "d3-tip")
-    .style("opacity", 0);
+    .style("display", "none")
+    // .style("zIndex", 3);
   // const tip = d3.tip()
   //   .attr('class', 'd3-tip')
   //   .offset([-10, 0])
@@ -55,8 +52,9 @@ const init = () => {
   // initialize simulation
   simulation = d3.forceSimulation()
     .force("link", d3.forceLink())
-    .force('charge', d3.forceManyBody().strength(-6))
-    .force("center", d3.forceCenter((w - margin.right - margin.left) / 2, (h - margin.top - margin.bottom) / 2));
+    .force('charge', d3.forceManyBody().strength(-10))
+    .force("center", d3.forceCenter((w - margin.right - margin.left) / 2, (h - margin.top - margin.bottom) / 2))
+    .force("collide", d3.forceCollide().radius(16).iterations(2));
 
   // initialize links
   const link = svg.append("g")
@@ -96,19 +94,14 @@ const init = () => {
     .attr('id', d => d.code)
     .attr('class', d => `flag flag-${d.code}`)
     .on("mouseover", (d) => {
-       tip.transition()
-         .duration(200)
-         .style("opacity", 1);
+       tip.style("display", "block")
+         .style("left", (d3.event.pageX + 8) + "px")
+         .style("top", (d3.event.pageY - 40) + "px");
        tip.html(`<div class='tip-name'>${d.country}</div>`)
-         .attr('class', 'd3-tip')
-         // .style("position", "absolute")
-         .style("left", (d3.event.pageX) + "px")
-         .style("top", (d3.event.pageY - 28) + "px");
+         .attr('class', 'd3-tip');
        })
      .on("mouseout", (d) => {
-       tip.transition()
-         .duration(500)
-         .style("opacity", 0);
+       tip.style("display", "none");
        });
     // .on("mouseover", (d) => {
     //   tip.style("display", "block");
@@ -136,8 +129,8 @@ const init = () => {
     //   .attr("cy", (d) => d.y = Math.max(r, Math.min(h - margin.top - margin.bottom - r, d.y)));
 
     flag
-      .style('left', d => `${(d.x = Math.max(48, Math.min(w - margin.left - margin.right - 48, (d.x + 48))))}px`)
-      .style('top', d => `${(d.y = Math.max(48, Math.min(h - margin.top - margin.bottom - 48, (d.y + 48))))}px`);
+      .style('left', d => `${(d.x = Math.max(24, Math.min(w - margin.left - margin.right - 24, (d.x + 12))))}px`)
+      .style('top', d => `${(d.y = Math.max(24, Math.min(h - margin.top - margin.bottom - 24, (d.y + 12))))}px`);
 
     // tip
     //   .style('left', d => `${(d.x = Math.max(16, Math.min(w - margin.left - margin.right - 16, (d.x + 16))))}px`)
