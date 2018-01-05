@@ -25,13 +25,12 @@ const init = () => {
     top: 20,
     bottom: 20,
   };
-  const graph = d3.select('.graph');
-  console.log(`window.innerWidth: ${window.innerWidth}`);
-  console.log(`w: ${w}`);
-  console.log(`left of graph: ${window.innerWidth - (w / 2)}`);
+  // console.log(`window.innerWidth: ${window.innerWidth}`);
+  // console.log(`w: ${w}`);
+  // console.log(`left of graph: ${window.innerWidth - (w / 2)}`);
 
   //initialize svg
-  const svg = graph
+  const svg = d3.select('body')
     .append("svg")
     .attr('width', w - margin.right - margin.left)
     .attr('height', h - margin.top - margin.bottom)
@@ -41,14 +40,17 @@ const init = () => {
     .style('left', `${(window.innerWidth / 2) - (w / 2)}px`);
 
   // initialize tooltips
-  const tip = d3.tip()
-    .attr('class', 'd3-tip')
-    .offset([-10, 0])
-    .html((d) => {
-      return `<div class='tip-name'>${d.country}</div>`;
-    });
+  const tip = d3.select("body").append("div")
+    .attr("class", "d3-tip")
+    .style("opacity", 0);
+  // const tip = d3.tip()
+  //   .attr('class', 'd3-tip')
+  //   .offset([-10, 0])
+  //   .html((d) => {
+  //     return `<div class='tip-name'>${d.country}</div>`;
+  //   });
 
-  svg.call(tip);
+  // svg.call(tip);
 
   // initialize simulation
   simulation = d3.forceSimulation()
@@ -79,9 +81,10 @@ const init = () => {
   //         .on("start", dragstarted)
   //         .on("drag", dragged)
   //         .on("end", dragended));
+  //
+  d3.select('body').append('div').attr('class', 'flag__wrap');
 
-  const flag = graph
-    .select('.flag__wrap')
+  const flag = d3.select('.flag__wrap')
     .attr('width', w - margin.right - margin.left)
     .attr('height', h - margin.top - margin.bottom)
     .style('top', `${headerHeight + 1}px`)
@@ -90,14 +93,35 @@ const init = () => {
     .data(nodes)
     .enter()
     .append('img')
+    .attr('id', d => d.code)
     .attr('class', d => `flag flag-${d.code}`)
-    .on("mouseover", tip.show)
-    .on("mouseout", tip.hide)
-    .call(d3.drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended)
-      )
+    .on("mouseover", (d) => {
+       tip.transition()
+         .duration(200)
+         .style("opacity", 1);
+       tip.html(`<div class='tip-name'>${d.country}</div>`)
+         .attr('class', 'd3-tip')
+         // .style("position", "absolute")
+         .style("left", (d3.event.pageX) + "px")
+         .style("top", (d3.event.pageY - 28) + "px");
+       })
+     .on("mouseout", (d) => {
+       tip.transition()
+         .duration(500)
+         .style("opacity", 0);
+       });
+    // .on("mouseover", (d) => {
+    //   tip.style("display", "block");
+    //   tip.html(`<div class='tip-name'>${d.country}</div>`)
+    //     .style("left", `${d3.event.pageX}px`)
+    //     .style("top", `${d3.event.pageY - 28}px`)
+    // })
+    // .on("mouseout", () => tip.style("display", "none"))
+    // .call(d3.drag()
+    //   .on("start", dragstarted)
+    //   .on("drag", dragged)
+    //   .on("end", dragended)
+    //   )
 
    // define tick function
   const ticked = () => {
@@ -112,8 +136,12 @@ const init = () => {
     //   .attr("cy", (d) => d.y = Math.max(r, Math.min(h - margin.top - margin.bottom - r, d.y)));
 
     flag
-      .style('left', d => `${(d.x = Math.max(16, Math.min(w - margin.left - margin.right - 16, (d.x + 16))))}px`)
-      .style('top', d => `${(d.y = Math.max(11, Math.min(h - margin.top - margin.bottom - 11, (d.y + 11))))}px`);
+      .style('left', d => `${(d.x = Math.max(48, Math.min(w - margin.left - margin.right - 48, (d.x + 48))))}px`)
+      .style('top', d => `${(d.y = Math.max(48, Math.min(h - margin.top - margin.bottom - 48, (d.y + 48))))}px`);
+
+    // tip
+    //   .style('left', d => `${(d.x = Math.max(16, Math.min(w - margin.left - margin.right - 16, (d.x + 16))))}px`)
+    //   .style('top', d => `${(d.y = Math.max(11, Math.min(h - margin.top - margin.bottom - 11, (d.y + 11))))}px`);
   }
 
   simulation
