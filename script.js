@@ -2,28 +2,34 @@ const dataUrl = 'https://raw.githubusercontent.com/DealPete/forceDirected/master
 
 let simulation;
 
+const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+
+let w, h;
+
+const color = d3.scaleSequential(d3.interpolateRainbow)
+    .domain(d3.range(5));
+
+const colorCode = (str) => str.charCodeAt(0) - 97;
+
 const init = () => {
 
   // define constants
   const { nodes, links } = data;
   const headerHeight = document.getElementById('header').clientHeight;
-  let w = window.innerWidth;
-  let h = window.innerHeight - headerHeight;
+  w = window.innerWidth;
+  h = window.innerHeight - headerHeight;
   if (w < h) {
     h = w;
   } else {
     w = h;
   }
-  const r = 10;
+  const r = 18;
   const margin = {
     left: 20,
     right: 20,
     top: 20,
     bottom: 20,
   };
-  // console.log(`window.innerWidth: ${window.innerWidth}`);
-  // console.log(`w: ${w}`);
-  // console.log(`left of graph: ${window.innerWidth - (w / 2)}`);
 
   //initialize svg
   const svg = d3.select('body')
@@ -39,22 +45,13 @@ const init = () => {
   const tip = d3.select("body").append("div")
     .attr("class", "d3-tip")
     .style("display", "none")
-    // .style("zIndex", 3);
-  // const tip = d3.tip()
-  //   .attr('class', 'd3-tip')
-  //   .offset([-10, 0])
-  //   .html((d) => {
-  //     return `<div class='tip-name'>${d.country}</div>`;
-  //   });
-
-  // svg.call(tip);
 
   // initialize simulation
   simulation = d3.forceSimulation()
     .force("link", d3.forceLink())
-    .force('charge', d3.forceManyBody().strength(-10))
+    .force('charge', d3.forceManyBody().strength(-6))
     .force("center", d3.forceCenter((w - margin.right - margin.left) / 2, (h - margin.top - margin.bottom) / 2))
-    .force("collide", d3.forceCollide().radius(16).iterations(2));
+    .force("collide", d3.forceCollide().radius(20).iterations(2));
 
   // initialize links
   const link = svg.append("g")
@@ -64,22 +61,22 @@ const init = () => {
     .enter()
     .append("line");
 
-  // // initialize node circles
-  // const node = svg
-  //   .append("g")
-  //   .attr("class", "node")
-  //   .selectAll("circle")
-  //   .data(nodes)
-  //   .enter().append("circle")
-  //     .attr("r", r)
-  //     .attr("fill", "white")
-  //     .on("mouseover", tip.show)
-  //     .on("mouseout", tip.hide)
-  //     .call(d3.drag()
-  //         .on("start", dragstarted)
-  //         .on("drag", dragged)
-  //         .on("end", dragended));
-  //
+  // initialize node circles
+  const node = svg
+    .append("g")
+    .attr("class", "node")
+    .selectAll("circle")
+    .data(nodes)
+    .enter().append("circle")
+      .attr("r", r)
+      .attr("fill", (d) => color(Math.floor(colorCode(d.code)/10)))
+      .on("mouseover", tip.show)
+      .on("mouseout", tip.hide)
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
   d3.select('body').append('div').attr('class', 'flag__wrap');
 
   const flag = d3.select('.flag__wrap')
@@ -102,39 +99,29 @@ const init = () => {
        })
      .on("mouseout", (d) => {
        tip.style("display", "none");
-       });
-    // .on("mouseover", (d) => {
-    //   tip.style("display", "block");
-    //   tip.html(`<div class='tip-name'>${d.country}</div>`)
-    //     .style("left", `${d3.event.pageX}px`)
-    //     .style("top", `${d3.event.pageY - 28}px`)
-    // })
-    // .on("mouseout", () => tip.style("display", "none"))
-    // .call(d3.drag()
-    //   .on("start", dragstarted)
-    //   .on("drag", dragged)
-    //   .on("end", dragended)
-    //   )
+       })
+    .call(d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended)
+      );
 
    // define tick function
   const ticked = () => {
     link
-        .attr("x1", (d) => d.source.x)
-        .attr("y1", (d) => d.source.y)
-        .attr("x2", (d) => d.target.x)
-        .attr("y2", (d) => d.target.y);
+        .attr("x1", d => clamp(d.source.x, 0, w))
+        .attr("y1", d => clamp(d.source.y, 0, h))
+        .attr("x2", d => clamp(d.target.x, 0, w))
+        .attr("y2", d => clamp(d.target.y, 0, h));
 
-    // node
-    //   .attr("cx", (d) => d.x = Math.max(r, Math.min(w - margin.left - margin.right - r, d.x)))
-    //   .attr("cy", (d) => d.y = Math.max(r, Math.min(h - margin.top - margin.bottom - r, d.y)));
+    node
+      .attr("cx", d => `${clamp(d.x + 3, 0, w - 24)}px`)
+      .attr("cy", d => `${clamp(d.y - 1, 0, h - 16)}px`);
 
     flag
-      .style('left', d => `${(d.x = Math.max(24, Math.min(w - margin.left - margin.right - 24, (d.x + 12))))}px`)
-      .style('top', d => `${(d.y = Math.max(24, Math.min(h - margin.top - margin.bottom - 24, (d.y + 12))))}px`);
+      .style('left', d => `${clamp(d.x + 12, 0, w - 24)}px`)
+      .style('top', d => `${clamp(d.y + 12, 0, h - 16)}px`);
 
-    // tip
-    //   .style('left', d => `${(d.x = Math.max(16, Math.min(w - margin.left - margin.right - 16, (d.x + 16))))}px`)
-    //   .style('top', d => `${(d.y = Math.max(11, Math.min(h - margin.top - margin.bottom - 11, (d.y + 11))))}px`);
   }
 
   simulation
@@ -153,8 +140,8 @@ const dragstarted = (d) => {
 }
 
 const dragged = (d) => {
-  d.fx = d3.event.x;
-  d.fy = d3.event.y;
+  d.fx = clamp(d3.event.x, 0, w);
+  d.fy = clamp(d3.event.y, 0, h);
 }
 
 const dragended = (d) => {
