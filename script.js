@@ -510,7 +510,24 @@ const data = {
 
 const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
-const color = d3.scaleSequential(d3.interpolateRainbow);
+// const color = d3.scaleSequential(d3.interpolateRainbow);
+const color = d3.scaleSequential(d3.interpolateRainbow)
+    .domain([0,12]);
+// const color = d3.scaleOrdinal(d3.schemeCategory20);
+
+const regions = ["Antarctic",
+"Caribbean Islands",
+"East Asia",
+"Europe",
+"Mesoamerica",
+"North Africa",
+"North America",
+"North Asia",
+"Oceania",
+"South & South East Asia",
+"South America",
+"Sub-Saharan Africa",
+"West & Central Asia"];
 
 // define constants
 const { nodes, links } = data;
@@ -564,10 +581,22 @@ const tip = d3.select("body").append("div")
 
 // initialize simulation
 const simulation = d3.forceSimulation()
+  // keep entire simulation balanced around screen center
+  .force('center', d3.forceCenter(w/2, h/2))
+  // pull toward center
+  .force('attract', d3.forceAttract()
+    .target([w/2, h/2])
+    .strength(0.01))
+  // cluster by region
+  .force('cluster', d3.forceCluster()
+    .centers(d => regions.indexOf(d.region))
+    .strength(0.5)
+    .centerInertia(0.1))
+
   .force("link", d3.forceLink())
-  .force('charge', d3.forceManyBody().strength(-6))
-  .force("center", d3.forceCenter((w - margin.right - margin.left) / 2, (h - margin.top - margin.bottom) / 2))
-  .force("collide", d3.forceCollide().radius(20).iterations(2));
+  .force('charge', d3.forceManyBody().strength(-10))
+  // apply collision with padding
+  .force("collide", d3.forceCollide().radius(20).strength(0));
 
 // initialize links
 const link = svg.append("g")
@@ -585,7 +614,8 @@ const node = svg
   .data(nodes)
   .enter().append("circle")
     .attr("r", r)
-    .attr("fill", (d) => color(d[3]))
+    .attr("fill", (d) => color(regions.indexOf(d.region)))
+    .attr("stroke", (d) => color(regions.indexOf(d.region)))
     .on("mouseover", tip.show)
     .on("mouseout", tip.hide)
     .call(d3.drag()

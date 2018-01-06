@@ -92,11 +92,11 @@ svg {
   stroke-opacity: 0.6;
 }
 
-.node circle {
+/*.node circle {
   stroke: #252525;
   stroke-width: 1.5px;
   stroke-opacity: 0.6;
-}
+}*/
 
 img {
   position: absolute;
