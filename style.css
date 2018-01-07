@@ -16,6 +16,8 @@ svg {
   background: white;
   z-index: 3;
   width: 100vw;
+  position: fixed;
+  top: 0;
 }
 
 .title, .subhead {
@@ -62,10 +64,6 @@ svg {
 
 .legend {
   font-size: 12px;
-/*  position: absolute;
-  left: 30px;
-  width: 100%;
-  z-index: 3;*/
 }
 
 .legendBlock {
@@ -76,16 +74,6 @@ svg {
   height: 400px;
   position: absolute;
 }
-/*
-.legend text {
-  position: absolute;
-  left: 30px;
-}
-
-.legend circle {
-  z-index: 3;
-  left: 30px;
-}*/
 
 .link {
   stroke-width: 1px;
