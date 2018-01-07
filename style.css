@@ -62,8 +62,10 @@ svg {
 
 .legend {
   font-size: 12px;
-  position: absolute;
+/*  position: absolute;
   left: 30px;
+  width: 100%;
+  z-index: 3;*/
 }
 
 .legendBlock {
@@ -72,17 +74,18 @@ svg {
   padding: 20px;
   width: 200px;
   height: 400px;
-  position: relative;
+  position: absolute;
 }
-
+/*
 .legend text {
-/*  position: absolute;*/
+  position: absolute;
   left: 30px;
 }
 
 .legend circle {
   z-index: 3;
-}
+  left: 30px;
+}*/
 
 .link {
   stroke-width: 1px;

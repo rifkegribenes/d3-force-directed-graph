@@ -694,7 +694,8 @@ const legendRectSize = 18;
 const legendSpacing = 8;
 
 // const legendBlock = d3.select('body').append('div')
-//   .attr('class', 'legendBlock');
+//   .attr('class', 'legendBlock')
+//   .style('top', `${headerHeight}px`);
 
 const legend = svg.selectAll('.legend')
   .data(colorsArray)
@@ -703,15 +704,18 @@ const legend = svg.selectAll('.legend')
   .attr('class', 'legend')
   .attr('id', d => regions[d])
   .attr('transform', (d, i) => `translate(0, ${30 + (i * (legendRectSize + legendSpacing))})`);
+  // .style('top', (d, i) => `${30 + (i * (legendRectSize + legendSpacing))}px`);
 
 legend.append('circle')
   .attr('r', legendRectSize / 2)
-  // .attr('cx', legendRectSize / 2)
-  // .attr('cy', legendRectSize / 2)
   .attr('fill', d => color(d))
-  .attr('stroke', d => color(d));
+  .attr('stroke', d => color(d))
+  .attr('cx', legendRectSize / 2)
+  .attr('cy', legendRectSize / 2);
+
 
 legend.append('text')
-  .attr('x', legendRectSize )
-  .attr('y', legendRectSize - (legendSpacing * 1.5))
+  .attr('x', legendRectSize + legendSpacing)
+  .attr('y', legendRectSize - (legendSpacing * .5))
   .text(d => regions[d]);
+
