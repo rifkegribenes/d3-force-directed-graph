@@ -10,11 +10,12 @@ body {
 svg {
 	position: absolute;
   padding: 20px;
-  border: 1px solid #eee;
 }
 
-.bar:hover {
-	fill: LightBlue !important;
+#header {
+  background: white;
+  z-index: 3;
+  width: 100vw;
 }
 
 .title, .subhead {
@@ -59,27 +60,28 @@ svg {
 	text-align: center;
 }
 
-/*.d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 10px;
-  width: 100%;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
-  content: "\25BC";
-  position: absolute;
-  text-align: center;
-  top: 100%;
-}
-
-.d3-tip.n:after {
-  margin: -1px -4px 0 0;
-  top: 1.5em;
-  left: 0;
-}*/
-
 .legend {
   font-size: 12px;
+  position: absolute;
+  left: 30px;
+}
+
+.legendBlock {
+  z-index: 2;
+  background: white;
+  padding: 20px;
+  width: 200px;
+  height: 400px;
+  position: relative;
+}
+
+.legend text {
+/*  position: absolute;*/
+  left: 30px;
+}
+
+.legend circle {
+  z-index: 3;
 }
 
 .link {
@@ -92,15 +94,8 @@ svg {
   stroke-opacity: 0.6;
 }
 
-/*.node circle {
-  stroke: #252525;
-  stroke-width: 1.5px;
-  stroke-opacity: 0.6;
-}*/
-
 img {
   position: absolute;
-/*  clip: rect(4px,0px,4px,0px);*/
 }
 
 .flag__wrap {

@@ -514,31 +514,34 @@ const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 const color = d3.scaleSequential(d3.interpolateRainbow)
     .domain([0,12]);
 // const color = d3.scaleOrdinal(d3.schemeCategory20);
+const colorsArray = Array.from(Array(12).keys());
 
-const regions = ["Antarctic",
-"Caribbean Islands",
-"East Asia",
-"Europe",
-"Mesoamerica",
-"North Africa",
-"North America",
-"North Asia",
+const regions = [
+"Antarctic",
 "Oceania",
 "South & South East Asia",
-"South America",
+"East Asia",
+"North Asia",
+"West & Central Asia",
+"Europe",
+"North Africa",
 "Sub-Saharan Africa",
-"West & Central Asia"];
+"Caribbean Islands",
+"South America",
+"Mesoamerica",
+"North America"
+];
 
 // define constants
 const { nodes, links } = data;
 const headerHeight = document.getElementById('header').clientHeight;
 let w = window.innerWidth;
-let h = window.innerHeight - headerHeight;
-if (w < h) {
-  h = w;
-} else {
-  w = h;
-}
+let h = window.innerHeight;
+// if (w < h) {
+//   h = w;
+// } else {
+//   w = h;
+// }
 const r = 18;
 const margin = {
   left: 20,
@@ -590,7 +593,7 @@ const simulation = d3.forceSimulation()
   // cluster by region
   .force('cluster', d3.forceCluster()
     .centers(d => regions.indexOf(d.region))
-    .strength(0.5)
+    .strength(1)
     .centerInertia(0.1))
 
   .force("link", d3.forceLink())
@@ -614,8 +617,8 @@ const node = svg
   .data(nodes)
   .enter().append("circle")
     .attr("r", r)
-    .attr("fill", (d) => color(regions.indexOf(d.region)))
-    .attr("stroke", (d) => color(regions.indexOf(d.region)))
+    .attr("fill", d => color(regions.indexOf(d.region)))
+    .attr("stroke", d => color(regions.indexOf(d.region)))
     .on("mouseover", tip.show)
     .on("mouseout", tip.hide)
     .call(d3.drag()
@@ -655,20 +658,28 @@ const flag = d3.select('.flag__wrap')
  // define tick function
 const ticked = () => {
   link
-      .attr("x1", d => clamp(d.source.x, 0, w))
-      .attr("y1", d => clamp(d.source.y, 0, h))
-      .attr("x2", d => clamp(d.target.x, 0, w))
-      .attr("y2", d => clamp(d.target.y, 0, h));
+      .attr("x1", d => d.source.x)
+      .attr("y1", d => d.source.y)
+      .attr("x2", d => d.target.x)
+      .attr("y2", d => d.target.y);
 
   node
-    .attr("cx", d => `${clamp(d.x + 3, 0, w - 24)}px`)
-    .attr("cy", d => `${clamp(d.y - 1, 0, h - 16)}px`);
+    .attr("cx", d => `${d.x + 3}px`)
+    .attr("cy", d => `${d.y - 1}px`);
 
   flag
-    .style('left', d => `${clamp(d.x + 12, 0, w - 24)}px`)
-    .style('top', d => `${clamp(d.y + 12, 0, h - 16)}px`);
+    .style('left', d => `${d.x + 12}px`)
+    .style('top', d => `${d.y + 12}px`);
 
 }
+
+// ramp up collision strength to provide smooth transition
+const transitionTime = 3000;
+const t = d3.timer((elapsed) => {
+  const dt = elapsed / transitionTime;
+  simulation.force('collide').strength(Math.pow(dt, 2) * 0.7);
+  if (dt >= 1.0) t.stop();
+});
 
 simulation
     .nodes(nodes)
@@ -676,3 +687,31 @@ simulation
 
 simulation.force("link")
     .links(links);
+
+
+// initialize legend
+const legendRectSize = 18;
+const legendSpacing = 8;
+
+// const legendBlock = d3.select('body').append('div')
+//   .attr('class', 'legendBlock');
+
+const legend = svg.selectAll('.legend')
+  .data(colorsArray)
+  .enter()
+  .append('g')
+  .attr('class', 'legend')
+  .attr('id', d => regions[d])
+  .attr('transform', (d, i) => `translate(0, ${30 + (i * (legendRectSize + legendSpacing))})`);
+
+legend.append('circle')
+  .attr('r', legendRectSize / 2)
+  // .attr('cx', legendRectSize / 2)
+  // .attr('cy', legendRectSize / 2)
+  .attr('fill', d => color(d))
+  .attr('stroke', d => color(d));
+
+legend.append('text')
+  .attr('x', legendRectSize )
+  .attr('y', legendRectSize - (legendSpacing * 1.5))
+  .text(d => regions[d]);
